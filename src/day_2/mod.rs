@@ -59,7 +59,7 @@ fn solve_part_two(file_content: &String) -> usize {
                 // Test all possible pattern lengths, from 1 to n/2 + 1, where n
                 // is the number of digits in the id.
                 // Patterns longer than n/2 + 1 cannoted be repeated.
-                for pattern_length in 1..(id_as_str.len() / 2 + 1) {
+                for pattern_length in (1..=(id_as_str.len() / 2)).rev() {
                     if is_repeating_pattern(&id_as_str, pattern_length) {
                         total += id;
                         break;
