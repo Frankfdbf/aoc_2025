@@ -15,7 +15,6 @@ pub fn output_double_star(path: &Path) {
 
 const STARTING_POSITION: i64 = 50;
 
-
 fn solve_part_one(file_content: &String) -> usize {
     let mut counter = 0;
     let mut current_position = STARTING_POSITION;
@@ -29,48 +28,17 @@ fn solve_part_one(file_content: &String) -> usize {
             current_position = current_position - increment;
         }
         current_position = current_position.rem_euclid(100);
-        if current_position == 0 { counter += 1; }
+        if current_position == 0 {
+            counter += 1;
+        }
     }
     counter
 }
 
-// fn solve_part_two(file_content: &String) -> i64 {
-//     let mut counter = 0;
-//     let mut current_position = STARTING_POSITION;
-//     for line in file_content.lines() {
-//         dbg!(line);
-//         let direction = &line[..1].to_string();
-//         let increment: i64 = line[1..].parse().unwrap();
-//         let initial_position = current_position;
-
-//         if direction == &String::from("R") {
-//             current_position = current_position + increment;
-//         } else {
-//             current_position = current_position - increment;
-//         }
-
-//         // if current_position.rem_euclid(100) == 0 { counter += 1; }
-
-//         // if dbg!(current_position) != 0 {
-//         if initial_position == 0 && direction == &String::from("L") { counter -= 1};
-//         if current_position == 0 { counter += 1};
-        
-//         counter += dbg!(dbg!(current_position).div_euclid(100).abs());
-//         // }
-
-//         current_position = dbg!(current_position.rem_euclid(100));
-        
-//         println!("counter = {}",counter);
-
-//     }
-//     counter
-// }
-
-fn solve_part_two(file_content: &String) -> i64 {
+fn solve_part_two(file_content: &String) -> usize {
     let mut counter = 0;
     let mut current_position = STARTING_POSITION;
     for line in file_content.lines() {
-        dbg!(line);
         let direction = &line[..1].to_string();
         let mut increment: i64 = line[1..].parse().unwrap();
         let initial_position = current_position;
@@ -93,7 +61,7 @@ fn solve_part_two(file_content: &String) -> i64 {
         }
         current_position = current_position.rem_euclid(100);
     }
-    counter
+    counter as usize
 }
 
 #[cfg(test)]
@@ -113,7 +81,7 @@ L1
 L99
 R14
 L82"
-                .to_string(),
+            .to_string(),
         );
 
         assert_eq!(result, 3);
@@ -132,7 +100,7 @@ L1
 L99
 R14
 L82"
-                .to_string(),
+            .to_string(),
         );
 
         assert_eq!(result, 6);
