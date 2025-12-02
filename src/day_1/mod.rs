@@ -1,0 +1,140 @@
+use std::fs;
+use std::path::Path;
+
+pub fn output_single_star(path: &Path) {
+    let file_content = fs::read_to_string(path).unwrap();
+    let result = solve_part_one(&file_content);
+    println!("Day one, from input {path:?}, resulted in {result}");
+}
+
+pub fn output_double_star(path: &Path) {
+    let file_content = fs::read_to_string(path).unwrap();
+    let result = solve_part_two(&file_content);
+    println!("Day one, from input {path:?}, resulted in {result}");
+}
+
+const STARTING_POSITION: i64 = 50;
+
+
+fn solve_part_one(file_content: &String) -> usize {
+    let mut counter = 0;
+    let mut current_position = STARTING_POSITION;
+    for line in file_content.lines() {
+        let direction = &line[..1].to_string();
+        let increment: i64 = line[1..].parse().unwrap();
+
+        if direction == &String::from("R") {
+            current_position = current_position + increment;
+        } else {
+            current_position = current_position - increment;
+        }
+        current_position = current_position.rem_euclid(100);
+        if current_position == 0 { counter += 1; }
+    }
+    counter
+}
+
+// fn solve_part_two(file_content: &String) -> i64 {
+//     let mut counter = 0;
+//     let mut current_position = STARTING_POSITION;
+//     for line in file_content.lines() {
+//         dbg!(line);
+//         let direction = &line[..1].to_string();
+//         let increment: i64 = line[1..].parse().unwrap();
+//         let initial_position = current_position;
+
+//         if direction == &String::from("R") {
+//             current_position = current_position + increment;
+//         } else {
+//             current_position = current_position - increment;
+//         }
+
+//         // if current_position.rem_euclid(100) == 0 { counter += 1; }
+
+//         // if dbg!(current_position) != 0 {
+//         if initial_position == 0 && direction == &String::from("L") { counter -= 1};
+//         if current_position == 0 { counter += 1};
+        
+//         counter += dbg!(dbg!(current_position).div_euclid(100).abs());
+//         // }
+
+//         current_position = dbg!(current_position.rem_euclid(100));
+        
+//         println!("counter = {}",counter);
+
+//     }
+//     counter
+// }
+
+fn solve_part_two(file_content: &String) -> i64 {
+    let mut counter = 0;
+    let mut current_position = STARTING_POSITION;
+    for line in file_content.lines() {
+        dbg!(line);
+        let direction = &line[..1].to_string();
+        let mut increment: i64 = line[1..].parse().unwrap();
+        let initial_position = current_position;
+
+        counter += increment / 100;
+        increment = increment % 100;
+
+        if direction == &String::from("R") {
+            current_position = current_position + increment;
+        } else {
+            current_position = current_position - increment;
+        }
+
+        if initial_position != 0 {
+            if current_position <= 0 {
+                counter += 1;
+            } else if current_position >= 100 {
+                counter += 1;
+            }
+        }
+        current_position = current_position.rem_euclid(100);
+    }
+    counter
+}
+
+#[cfg(test)]
+mod test {
+    use crate::day_1::*;
+
+    #[test]
+    fn test_solve_part_one() {
+        let result = solve_part_one(
+            &"L68
+L30
+R48
+L5
+R60
+L55
+L1
+L99
+R14
+L82"
+                .to_string(),
+        );
+
+        assert_eq!(result, 3);
+    }
+
+    #[test]
+    fn test_solve_part_two() {
+        let result = solve_part_two(
+            &"L68
+L30
+R48
+L5
+R60
+L55
+L1
+L99
+R14
+L82"
+                .to_string(),
+        );
+
+        assert_eq!(result, 6);
+    }
+}
