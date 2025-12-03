@@ -25,15 +25,12 @@ fn compute_max_voltage(battery_banks: &str, slots_per_bank: usize) -> usize {
     battery_banks
         .trim()
         .split('\n')
-        .map(|line| {
+        .map(|mut bank| {
             let mut voltage = String::new();
-
-            let mut bank = line;
 
             for i in (0..slots_per_bank).rev() {
                 let (position, battery) = find_max_battery(&bank[..(bank.len() - i)]);
                 bank = &bank[(position + 1)..];
-
                 voltage.push(battery);
             }
             voltage.parse::<usize>().unwrap()
@@ -43,9 +40,7 @@ fn compute_max_voltage(battery_banks: &str, slots_per_bank: usize) -> usize {
 
 fn find_max_battery(bank: &str) -> (usize, char) {
     let max = bank.chars().max_by_key(|battery| *battery).unwrap();
-
     let pos_max = bank.chars().position(|battery| battery == max).unwrap();
-
     (pos_max, max)
 }
 
