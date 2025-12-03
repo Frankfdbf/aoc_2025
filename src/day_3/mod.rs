@@ -14,41 +14,15 @@ pub fn output_double_star(path: &Path) {
 }
 
 fn solve_part_one(file_content: &str) -> usize {
-    file_content
-        .trim()
-        .split('\n')
-        .map(|line| {
-            let first_max = line[..(line.len() - 1)]
-                .chars()
-                .max_by_key(|battery| *battery)
-                .unwrap();
-
-            let pos_first_max = line
-                .chars()
-                .position(|battery| battery == first_max)
-                .unwrap();
-
-            dbg!(line);
-            dbg!(pos_first_max);
-            dbg!(first_max);
-
-            let second_max = line[(pos_first_max + 1)..]
-                .chars()
-                .max_by_key(|battery| *battery)
-                .unwrap();
-
-            dbg!(second_max);
-
-            let power = format!("{first_max}{second_max}");
-
-            dbg!(power).parse::<usize>().unwrap()
-        })
-        .sum()
+    compute_max_voltage(&file_content, 2)
 }
 
 fn solve_part_two(file_content: &String) -> usize {
-    const ITERATIONS: usize = 12;
-    file_content
+    compute_max_voltage(&file_content, 12)
+}
+
+fn compute_max_voltage(battery_banks: &str, slots_per_bank: usize) -> usize {
+    battery_banks
         .trim()
         .split('\n')
         .map(|line| {
@@ -56,17 +30,8 @@ fn solve_part_two(file_content: &String) -> usize {
 
             let mut bank = line;
 
-            for i in (0..ITERATIONS).rev() {
-                let battery;
-                let position;
-
-                // if i == ITERATIONS {
-                //    (_, battery) = find_max_battery(&bank);
-                // } else {
-                //    (position, battery) = find_max_battery(&bank[..(bank.len() - 1)]);
-                //     bank = &bank[(position + 1)..];
-                // }
-                (position, battery) = find_max_battery(&bank[..(bank.len() - i)]);
+            for i in (0..slots_per_bank).rev() {
+                let (position, battery) = find_max_battery(&bank[..(bank.len() - i)]);
                 bank = &bank[(position + 1)..];
 
                 voltage.push(battery);
