@@ -24,7 +24,7 @@ fn solve_part_two(file_content: &String) -> usize {
 fn compute_max_voltage(battery_banks: &str, slots_per_bank: usize) -> usize {
     battery_banks
         .trim()
-        .split('\n')
+        .lines()
         .map(|mut bank| {
             let mut voltage = String::new();
 
@@ -39,7 +39,7 @@ fn compute_max_voltage(battery_banks: &str, slots_per_bank: usize) -> usize {
 }
 
 fn find_max_battery(bank: &str) -> (usize, char) {
-    let max = bank.chars().max_by_key(|battery| *battery).unwrap();
+    let max = bank.chars().max().unwrap();
     let pos_max = bank.chars().position(|battery| battery == max).unwrap();
     (pos_max, max)
 }
