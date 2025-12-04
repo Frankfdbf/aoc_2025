@@ -1,5 +1,8 @@
 use std::fs;
 use std::path::Path;
+use std::str::FromStr;
+
+use crate::grid::{Grid, Coordinates};
 
 pub fn output_single_star(path: &Path) {
     let file_content = fs::read_to_string(path).unwrap();
@@ -14,107 +17,63 @@ pub fn output_double_star(path: &Path) {
 }
 
 fn solve_part_one(file_content: &str) -> usize {
-    let diagram: Matrix<char> = file_content
-        .trim()
-        .lines()
-        .map(|line| line.chars().collect())
-        .collect();
+    let grid: Grid<char> = Grid::from_str(file_content).unwrap();
 
-    let width = diagram[0].len();
-    let height = diagram.len();
+    let mut movable_rolls = 0;
 
-    let mut result = 0;
+    for x in 0..grid.width() {
+        for y in 0..grid.height() {
+            let pos = Coordinates::new(x, y);
+            if grid[pos] != '@' {
+                continue;
+            }
 
-    for x in 0..width {
-        for y in 0..height {
-            // check if adjcent position are less than 3 rolls
-            if is_roll(x, y, &diagram)
-                && forklift_can_access((x as i64, y as i64), &diagram, width, height)
-            {
-                dbg!((x, y));
-                result += 1;
+            let count_adjacent_rolls = grid.neighbors(pos).filter(|&pos| grid[pos] == '@').count();
+            if count_adjacent_rolls < 4 {
+                movable_rolls += 1;
             }
         }
     }
-    result
+
+    movable_rolls
 }
 
 fn solve_part_two(file_content: &String) -> usize {
-    let mut diagram: Matrix<char> = file_content
-        .trim()
-        .lines()
-        .map(|line| line.chars().collect())
-        .collect();
-
-    let width = diagram[0].len();
-    let height = diagram.len();
-
-    let mut removed_rolls = 0;
+    let mut grid: Grid<char> = Grid::from_str(file_content).unwrap();
+    let mut removed_rolls_count = 0;
 
     loop {
-        let mut removed_rolls_in_current_loop = 0;
+        // let mut removed_rolls_in_current_loop = 0;
+        let mut removed_rolls_current_loop = Vec::new();
 
-        for x in 0..width {
-            for y in 0..height {
-                // check if adjcent position are less than 3 rolls
-                if is_roll(x, y, &diagram)
-                    && forklift_can_access((x as i64, y as i64), &diagram, width, height)
-                {
-                    dbg!((x, y));
-                    removed_rolls += 1;
-                    removed_rolls_in_current_loop += 1;
-                    diagram[x][y] = '.';
+        for x in 0..grid.width() {
+            for y in 0..grid.height() {
+                let pos = Coordinates::new(x, y);
+                if grid[pos] != '@' {
+                    continue;
+                }
+
+                let count_adjacent_rolls =
+                    grid.neighbors(pos).filter(|&pos| grid[pos] == '@').count();
+
+                if count_adjacent_rolls < 4 {
+                    removed_rolls_count += 1;
+                    removed_rolls_current_loop.push(pos);
                 }
             }
         }
-        if removed_rolls_in_current_loop == 0 {
+
+        for pos in removed_rolls_current_loop.iter() {
+            grid[*pos] = '.';
+        }
+
+        if removed_rolls_current_loop.len() == 0 {
             break;
         }
     }
 
-    removed_rolls
+    removed_rolls_count
 }
-
-fn forklift_can_access(
-    pos: (i64, i64),
-    diagram: &Matrix<char>,
-    width: usize,
-    height: usize,
-) -> bool {
-    let mut rolls_count = 0;
-    let (x, y) = pos;
-
-    let positions_to_check = vec![
-        (x - 1, y),
-        (x - 1, y - 1),
-        (x, y - 1),
-        (x + 1, y),
-        (x + 1, y + 1),
-        (x, y + 1),
-        (x - 1, y + 1),
-        (x + 1, y - 1),
-    ];
-
-    let positions_to_check: Vec<(i64, i64)> = positions_to_check
-        .into_iter()
-        .filter(|(x, y)| x >= &0 && x < &(width as i64) && y >= &0 && y < &(height as i64))
-        .collect();
-
-    for (x, y) in positions_to_check {
-        if is_roll(x as usize, y as usize, diagram) {
-            // dbg!((x, y));
-            rolls_count += 1;
-        }
-    }
-
-    rolls_count < 4
-}
-
-fn is_roll(x: usize, y: usize, diagram: &Matrix<char>) -> bool {
-    if diagram[x][y] == '@' { true } else { false }
-}
-
-type Matrix<T> = Vec<Vec<T>>;
 
 #[cfg(test)]
 mod test {
