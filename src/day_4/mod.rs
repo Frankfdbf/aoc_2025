@@ -2,18 +2,18 @@ use std::fs;
 use std::path::Path;
 use std::str::FromStr;
 
-use crate::grid::{Grid, Coordinates};
+use crate::grid::{Coordinates, Grid};
 
 pub fn output_single_star(path: &Path) {
     let file_content = fs::read_to_string(path).unwrap();
     let result = solve_part_one(&file_content);
-    println!("Day three, from input {path:?}, resulted in {result}");
+    println!("Part 1, from input {path:?}, resulted in {result}");
 }
 
 pub fn output_double_star(path: &Path) {
     let file_content = fs::read_to_string(path).unwrap();
     let result = solve_part_two(&file_content);
-    println!("Day three, from input {path:?}, resulted in {result}");
+    println!("Part 2, from input {path:?}, resulted in {result}");
 }
 
 fn solve_part_one(file_content: &str) -> usize {
