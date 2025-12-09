@@ -1,16 +1,21 @@
 use std::fs;
 use std::path::Path;
+use std::time::Instant;
 
 pub fn output_single_star(path: &Path) {
+    let start = Instant::now();
     let file_content = fs::read_to_string(path).unwrap();
     let result = solve_part_one(&file_content);
-    println!("Part 1, from input {path:?}, resulted in {result}");
+    let duration = start.elapsed();
+    println!("Part 1, from input {path:?}, resulted in {result}, took {duration:?}");
 }
 
 pub fn output_double_star(path: &Path) {
+    let start = Instant::now();
     let file_content = fs::read_to_string(path).unwrap();
     let result = solve_part_two(&file_content);
-    println!("Part 2, from input {path:?}, resulted in {result}");
+    let duration = start.elapsed();
+    println!("Part 2, from input {path:?}, resulted in {result}, took {duration:?}");
 }
 
 fn solve_part_one(file_content: &str) -> usize {
@@ -50,7 +55,6 @@ fn solve_part_two(file_content: &String) -> usize {
         .unwrap()
         .rmatch_indices(|a| a == '*' || a == '+')
         .collect();
-    dbg!(&operators);
 
     let len_line = lines.clone().next().unwrap().len();
 
@@ -65,10 +69,8 @@ fn solve_part_two(file_content: &String) -> usize {
                 .collect();
 
             last_visited_idx = idx.saturating_sub(1);
-            dbg!(&operands);
 
             let result = apply_operator_on_operand(&operands, operator);
-            dbg!(&result);
             result
         })
         .sum()
@@ -83,7 +85,6 @@ fn apply_operator_on_operand(operands: &Vec<&str>, operator: &str) -> usize {
             num_str.push_str(&operand[idx..idx + 1]);
         }
 
-        dbg!(&num_str.trim());
         num_str.trim().parse::<usize>().unwrap()
     });
     match operator {

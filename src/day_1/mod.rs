@@ -1,16 +1,21 @@
 use std::fs;
 use std::path::Path;
+use std::time::Instant;
 
 pub fn output_single_star(path: &Path) {
+    let start = Instant::now();
     let file_content = fs::read_to_string(path).unwrap();
     let result = solve_part_one(&file_content);
-    println!("Part 1, from input {path:?}, resulted in {result}");
+    let duration = start.elapsed();
+    println!("Part 1, from input {path:?}, resulted in {result}, took {duration:?}");
 }
 
 pub fn output_double_star(path: &Path) {
+    let start = Instant::now();
     let file_content = fs::read_to_string(path).unwrap();
     let result = solve_part_two(&file_content);
-    println!("Part 2, from input {path:?}, resulted in {result}");
+    let duration = start.elapsed();
+    println!("Part 2, from input {path:?}, resulted in {result}, took {duration:?}");
 }
 
 const STARTING_POSITION: i64 = 50;
