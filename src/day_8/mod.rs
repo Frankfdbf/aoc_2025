@@ -88,54 +88,12 @@ fn solve_part_one(file_content: &str, iterations: usize) -> usize {
 fn solve_part_two(file_content: &String) -> usize {
     let vertices: Vec<JunctionBox> = get_vertices(file_content);
     let edges: Vec<(usize, usize, usize)> = get_edges(&vertices);
-
-    let mut circuits = vec![None; vertices.len()];
-    let mut next_group = 0;
+    let mut union_find = UnionFind::new(vertices.len());
 
     for (x, y, _) in edges.into_iter() {
-        // get the circuit associated
-        match (circuits.get(x).unwrap(), circuits.get(y).unwrap()) {
-            (None, None) => {
-                circuits[x] = Some(next_group);
-                circuits[y] = Some(next_group);
-                next_group += 1;
-            }
-            (Some(circuit), None) => {
-                circuits[y] = Some(*circuit);
-            }
-            (None, Some(circuit)) => {
-                circuits[x] = Some(*circuit);
-            }
-            (Some(circuit_x), Some(circuit_y)) => {
-                if circuit_x != circuit_y {
-                    circuits = circuits
-                        .clone()
-                        .into_iter()
-                        .map(|x| {
-                            if x == Some(*circuit_x) {
-                                Some(*circuit_y)
-                            } else {
-                                x
-                            }
-                        })
-                        .collect();
-                }
-            }
-        };
+        union_find.union(x, y);
 
-        let frequencies: Vec<usize> = circuits
-            .iter()
-            .copied()
-            .filter_map(|x| x)
-            .fold(HashMap::new(), |mut map, val| {
-                map.entry(val).and_modify(|frq| *frq += 1).or_insert(1);
-                map
-            })
-            .values()
-            .copied()
-            .collect();
-
-        if frequencies.len() == 1 && circuits.iter().all(|x| x.is_some()) {
+        if union_find.circuit_count == 1 && union_find.parents.iter().all(|x| x.is_some()) {
             return vertices[x].x * vertices[y].x;
         }
     }
@@ -166,6 +124,63 @@ fn get_edges(vertices: &Vec<JunctionBox>) -> Vec<(usize, usize, usize)> {
     }
     edges.sort_by_key(|&(_, _, distance)| distance);
     edges
+}
+
+// fn mst(vertices: &Vec<JunctionBox>) -> &UnionFind {
+
+// }
+
+struct UnionFind {
+    pub parents: Vec<Option<usize>>,
+    pub circuit_count: usize,
+}
+
+impl UnionFind {
+    pub fn new(capacity: usize) -> Self {
+        Self { parents: vec![None; capacity], circuit_count: 0 }
+    }
+
+    fn root(&self, mut from: usize) -> Option<usize> {
+        let root = None;
+        while let Some(parent) = self.parents[from] {
+            if parent == from {
+                return Some(parent);
+            } else {
+                from = parent;
+            }
+        }
+        root
+    }
+
+    pub fn union(&mut self, from: usize, to: usize) {
+        // check out of bound
+        match (self.parents[from], self.parents[to]) {
+            (None, None) => {
+                self.parents[from] = Some(from);
+                self.parents[to] = Some(from);
+                self.circuit_count += 1;
+            }, 
+            (Some(_), Some(_)) => {
+
+                match (self.root(from), self.root(to)) {
+                    (Some(x), Some(y)) => {
+                        if x == y { return; }
+                        self.parents[x] = Some(to);
+                        self.circuit_count -= 1;
+
+                    },
+                    _ => { panic!("should never happen"); },
+                }
+            }, 
+            (Some(_), None) => {
+                self.parents[to] = Some(from);
+            },
+            (None, Some(_)) => {
+                self.parents[from] = Some(to);
+            },
+        }
+
+    }
 }
 
 #[derive(PartialEq, Eq, Clone, Debug)]
