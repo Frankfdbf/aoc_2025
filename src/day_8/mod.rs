@@ -1,9 +1,10 @@
-use std::fs;
+use std::collections::HashMap;
 use std::path::Path;
+use std::{fs, usize};
 
 pub fn output_single_star(path: &Path) {
     let file_content = fs::read_to_string(path).unwrap();
-    let result = solve_part_one(&file_content);
+    let result = solve_part_one(&file_content, 1000);
     println!("Part 1, from input {path:?}, resulted in {result}");
 }
 
@@ -13,8 +14,125 @@ pub fn output_double_star(path: &Path) {
     println!("Part 2, from input {path:?}, resulted in {result}");
 }
 
-fn solve_part_one(file_content: &str) -> usize {
-    let graph: Vec<JunctionBox> = file_content
+fn solve_part_one(file_content: &str, iterations: usize) -> usize {
+    let vertices: Vec<JunctionBox> = get_vertices(file_content);
+    let edges: Vec<(usize, usize, usize)> = get_edges(&vertices);
+
+    let mut distances: Vec<Vec<usize>> = vec![vec![usize::MAX; vertices.len()]; vertices.len()];
+
+    for (i, vertex) in vertices.iter().enumerate() {
+        for (y, other_vertex) in vertices[i + 1..].iter().enumerate() {
+            distances[i][i + 1 + y] = vertex.squared_distance_to(&other_vertex);
+        }
+    }
+    let mut circuits = vec![None; vertices.len()];
+    let mut next_group = 0;
+
+    for (idx, (x, y, _)) in edges.into_iter().enumerate() {
+
+        if idx == iterations { break; }
+
+        // get the circuit associated
+        match (circuits.get(x).unwrap(), circuits.get(y).unwrap()) {
+            (None, None) => {
+                circuits[x] = Some(next_group);
+                circuits[y] = Some(next_group);
+                next_group += 1;
+
+            }
+            (Some(circuit), None) => {
+                circuits[y] = Some(*circuit);
+            },
+            (None, Some(circuit)) => {
+                circuits[x] = Some(*circuit);
+            },
+            (Some(circuit_x), Some(circuit_y)) => {
+                if circuit_x != circuit_y {
+                    circuits = circuits.clone().into_iter().map(|x| {
+                        if x == Some(*circuit_x) {
+                            Some(*circuit_y)
+                        } else {
+                            x
+                        }
+                    }).collect();
+                }
+            }
+        };
+    }
+
+    let mut frequencies: Vec<usize> = circuits
+          .iter()
+          .copied()
+          .filter_map(|x| x)
+          .fold(HashMap::new(), |mut map, val|{
+              map.entry(val)
+                 .and_modify(|frq|*frq+=1)
+                 .or_insert(1);
+              map
+          }).values().copied().collect();
+
+    frequencies.sort_by(|a, b| b.cmp(a));
+    frequencies[..3].iter().product()
+}
+
+fn solve_part_two(file_content: &String) -> usize {
+    let vertices: Vec<JunctionBox> = get_vertices(file_content);
+    let edges: Vec<(usize, usize, usize)> = get_edges(&vertices);
+
+    let mut circuits = vec![None; vertices.len()];
+    let mut next_group = 0;
+
+    for (x, y, _) in edges.into_iter(){
+
+        // get the circuit associated
+        match (circuits.get(x).unwrap(), circuits.get(y).unwrap()) {
+            (None, None) => {
+                circuits[x] = Some(next_group);
+                circuits[y] = Some(next_group);
+                next_group += 1;
+
+            }
+            (Some(circuit), None) => {
+                circuits[y] = Some(*circuit);
+            },
+            (None, Some(circuit)) => {
+                circuits[x] = Some(*circuit);
+            },
+            (Some(circuit_x), Some(circuit_y)) => {
+                if circuit_x != circuit_y {
+
+                    circuits = circuits.clone().into_iter().map(|x| {
+
+                        if x == Some(*circuit_x) {
+                            Some(*circuit_y)
+                        } else {
+                            x
+                        }
+                    }).collect();
+                }
+            }
+        };
+        
+        let frequencies: Vec<usize> = circuits
+          .iter()
+          .copied()
+          .filter_map(|x| x)
+          .fold(HashMap::new(), |mut map, val|{
+              map.entry(val)
+                 .and_modify(|frq|*frq+=1)
+                 .or_insert(1);
+              map
+          }).values().copied().collect();
+        
+        if frequencies.len() == 1 && circuits.iter().all(|x| x.is_some()) {
+            return vertices[x].x * vertices[y].x; 
+        }
+    }
+    0
+}
+
+fn get_vertices(file_content: &str) -> Vec<JunctionBox> {
+    file_content
         .trim()
         .lines()
         .map(|line| {
@@ -24,32 +142,19 @@ fn solve_part_one(file_content: &str) -> usize {
             let z = coordinates.next().unwrap().parse().unwrap();
             JunctionBox { x, y, z }
         })
-        .collect();
-
-    let edges: Vec<(JunctionBox, JunctionBox)> = graph
-        .iter()
-        .map(|node| {
-            let closest_node = graph
-                .iter()
-                .filter_map(|other_node| {
-                    if other_node == node {
-                        return None;
-                    }
-
-                    Some((other_node, other_node.squared_distance_to(&node)))
-                })
-                .min_by(|x, y| x.1.cmp(&y.1))
-                .map(|(other_node, distance)| other_node.clone())
-                .unwrap();
-            (node.clone(), closest_node)
-        })
-        .collect();
-    dbg!(edges);
-    0
+        .collect()
 }
 
-fn solve_part_two(file_content: &String) -> usize {
-    0
+fn get_edges(vertices: &Vec<JunctionBox>) -> Vec<(usize, usize, usize)> {
+    let mut edges = Vec::new();
+
+    for (i, vertex) in vertices.iter().enumerate() {
+        for (j, other_vertex) in vertices[i + 1..].iter().enumerate() {
+            edges.push((i, i + 1 +j, vertex.squared_distance_to(&other_vertex)));
+        }
+    };
+    edges.sort_by_key(|&(_, _, distance)| distance);
+    edges
 }
 
 #[derive(PartialEq, Eq, Clone, Debug)]
@@ -62,7 +167,9 @@ struct JunctionBox {
 impl JunctionBox {
     pub fn squared_distance_to(&self, other: &JunctionBox) -> usize {
         // save on the sqrt operation
-        (self.x + other.x).pow(2) + (self.y + other.y).pow(2) + (self.z + other.z).pow(2)
+        (self.x as i64 - other.x as i64).pow(2) as usize
+            + (self.y as i64 - other.y as i64).pow(2) as usize
+            + (self.z as i64 - other.z as i64).pow(2) as usize
     }
 }
 
@@ -94,9 +201,10 @@ mod test {
 984,92,344
 425,690,689"
                 .to_string(),
+                10
         );
 
-        assert_eq!(result, 21);
+        assert_eq!(result, 40);
     }
 
     #[test]
@@ -125,6 +233,6 @@ mod test {
                 .to_string(),
         );
 
-        assert_eq!(result, 40);
+        assert_eq!(result, 25272);
     }
 }
