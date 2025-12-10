@@ -43,7 +43,7 @@ fn solve_part_one(file_content: &str) -> usize {
     movable_rolls
 }
 
-fn solve_part_two(file_content: &String) -> usize {
+fn solve_part_two(file_content: &str) -> usize {
     let mut grid: Grid<char> = Grid::from_str(file_content).unwrap();
     let mut removed_rolls_count = 0;
 

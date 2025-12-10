@@ -44,7 +44,7 @@ fn solve_part_one(file_content: &str) -> usize {
         .count()
 }
 
-fn solve_part_two(file_content: &String) -> usize {
+fn solve_part_two(file_content: &str) -> usize {
     let mut fresh_ingredients: Vec<RangeInclusive<usize>> = file_content
         .trim()
         .split("\n\n")

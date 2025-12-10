@@ -85,7 +85,7 @@ fn solve_part_one(file_content: &str, iterations: usize) -> usize {
     frequencies[..3].iter().product()
 }
 
-fn solve_part_two(file_content: &String) -> usize {
+fn solve_part_two(file_content: &str) -> usize {
     let vertices: Vec<JunctionBox> = get_vertices(file_content);
     let edges: Vec<(usize, usize, usize)> = get_edges(&vertices);
     let mut union_find = UnionFind::new(vertices.len());

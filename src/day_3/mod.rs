@@ -22,7 +22,7 @@ fn solve_part_one(file_content: &str) -> usize {
     compute_max_voltage(&file_content, 2)
 }
 
-fn solve_part_two(file_content: &String) -> usize {
+fn solve_part_two(file_content: &str) -> usize {
     compute_max_voltage(&file_content, 12)
 }
 

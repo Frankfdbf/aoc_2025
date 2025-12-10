@@ -18,7 +18,7 @@ pub fn output_double_star(path: &Path) {
     println!("Part 2, from input {path:?}, resulted in {result}, took {duration:?}");
 }
 
-fn solve_part_one(file_content: &String) -> usize {
+fn solve_part_one(file_content: &str) -> usize {
     file_content
         .split(',')
         .map(|range| {
@@ -48,7 +48,7 @@ fn solve_part_one(file_content: &String) -> usize {
         .sum()
 }
 
-fn solve_part_two(file_content: &String) -> usize {
+fn solve_part_two(file_content: &str) -> usize {
     file_content
         .split(',')
         .map(|range| {

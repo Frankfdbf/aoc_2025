@@ -47,7 +47,7 @@ fn solve_part_one(file_content: &str) -> usize {
         .sum()
 }
 
-fn solve_part_two(file_content: &String) -> usize {
+fn solve_part_two(file_content: &str) -> usize {
     let mut lines = file_content.trim().lines().rev();
 
     let operators: Vec<(usize, &str)> = lines

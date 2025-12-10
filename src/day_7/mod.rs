@@ -53,7 +53,7 @@ fn solve_part_one(file_content: &str) -> usize {
         .sum()
 }
 
-fn solve_part_two(file_content: &String) -> usize {
+fn solve_part_two(file_content: &str) -> usize {
     let width = file_content.trim().lines().next().unwrap().len();
 
     let mut splits: Vec<usize> = vec![1; width];
