@@ -20,7 +20,7 @@ pub fn output_double_star(path: &Path) {
 
 const STARTING_POSITION: i64 = 50;
 
-fn solve_part_one(file_content: &String) -> usize {
+fn solve_part_one(file_content: &str) -> usize {
     let mut counter = 0;
     let mut current_position = STARTING_POSITION;
     for line in file_content.lines() {
@@ -28,9 +28,9 @@ fn solve_part_one(file_content: &String) -> usize {
         let increment: i64 = line[1..].parse().unwrap();
 
         if direction == &String::from("R") {
-            current_position = current_position + increment;
+            current_position += increment;
         } else {
-            current_position = current_position - increment;
+            current_position -= increment;
         }
         current_position = current_position.rem_euclid(100);
         if current_position == 0 {
@@ -40,7 +40,7 @@ fn solve_part_one(file_content: &String) -> usize {
     counter
 }
 
-fn solve_part_two(file_content: &String) -> usize {
+fn solve_part_two(file_content: &str) -> usize {
     let mut counter = 0;
     let mut current_position = STARTING_POSITION;
     for line in file_content.lines() {
@@ -49,20 +49,16 @@ fn solve_part_two(file_content: &String) -> usize {
         let initial_position = current_position;
 
         counter += increment / 100;
-        increment = increment % 100;
+        increment %= 100;
 
         if direction == &String::from("R") {
-            current_position = current_position + increment;
+            current_position += increment;
         } else {
-            current_position = current_position - increment;
+            current_position -= increment;
         }
 
-        if initial_position != 0 {
-            if current_position <= 0 {
-                counter += 1;
-            } else if current_position >= 100 {
-                counter += 1;
-            }
+        if initial_position != 0 && (current_position <= 0 || current_position >= 100) {
+            counter += 1;
         }
         current_position = current_position.rem_euclid(100);
     }
@@ -76,7 +72,7 @@ mod test {
     #[test]
     fn test_solve_part_one() {
         let result = solve_part_one(
-            &"L68
+            "L68
 L30
 R48
 L5
@@ -85,8 +81,7 @@ L55
 L1
 L99
 R14
-L82"
-            .to_string(),
+L82",
         );
 
         assert_eq!(result, 3);
@@ -95,7 +90,7 @@ L82"
     #[test]
     fn test_solve_part_two() {
         let result = solve_part_two(
-            &"L68
+            "L68
 L30
 R48
 L5
@@ -104,8 +99,7 @@ L55
 L1
 L99
 R14
-L82"
-            .to_string(),
+L82",
         );
 
         assert_eq!(result, 6);
