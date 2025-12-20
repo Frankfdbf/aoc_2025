@@ -22,44 +22,128 @@ fn solve_part_one(file_content: &str) -> usize {
 
     machines
         .iter()
-        .filter_map(|machine| minimum_button_presses(machine.indicator_lights, &machine.buttons, 0))
+        .filter_map(|machine| {
+            let all_combinations = create_all_button_combinations(&machine.buttons);
+            all_combinations
+                .get(&machine.indicator_lights)
+                .map(|combinations| {
+                    combinations
+                        .iter()
+                        .map(|combination| combination.len())
+                        .min()
+                })?
+        })
         .sum()
 }
 
 fn solve_part_two(file_content: &str) -> usize {
-    0
+    let machines = parse_input(file_content);
+
+    machines
+        .iter()
+        .filter_map(|machine| {
+            let all_combinations = create_all_button_combinations(&machine.buttons);
+            minimum_button_presses_to_match_joltage(
+                &machine.joltage_requirements,
+                &all_combinations,
+            )
+        })
+        .sum()
 }
 
-type Pattern = usize;
-type Buttons = Vec<Button>;
-type Joltage = Vec<usize>;
-
-fn minimum_button_presses(
-    objective: Pattern,
-    buttons: &[Button],
-    button_pressed: usize,
+fn minimum_button_presses_to_match_joltage(
+    joltage: &Joltage,
+    all_combinations: &Combinations,
 ) -> Option<usize> {
-    if objective == 0 {
-        return Some(button_pressed);
+    if joltage.iter().all(|num| *num == 0) {
+        return Some(0);
     }
 
+    let pattern = joltage
+        .iter()
+        .enumerate()
+        .filter_map(|(idx, counter)| {
+            if counter % 2 == 0 {
+                None
+            } else {
+                Some(2u32.pow(idx as u32) as usize)
+            }
+        })
+        .sum::<usize>();
+
+    if let Some(combinations) = all_combinations.get(&pattern) {
+        combinations
+            .iter()
+            .filter_map(|combination| {
+                // copy joltage
+                let mut new_joltage = joltage.clone();
+
+                // reduce requirements by pressing buttons
+                for button in combination.iter() {
+                    for switch in button.as_switches().iter() {
+                        if new_joltage[*switch] == 0 {
+                            return None;
+                        }
+                        new_joltage[*switch] -= 1;
+                    }
+                }
+
+                // half the joltage requirement
+                new_joltage.iter_mut().for_each(|element| {
+                    *element /= 2;
+                });
+
+                Some(
+                    combination.len()
+                        + 2 * minimum_button_presses_to_match_joltage(
+                            &new_joltage,
+                            all_combinations,
+                        )?,
+                )
+            })
+            .min()
+    } else {
+        None
+    }
+}
+
+fn create_all_button_combinations(buttons: &[Button]) -> Combinations {
+    let pattern: Pattern = 0; // starting point no button pressed
+    let mut combinations = HashMap::new();
+
+    add_combinations(pattern, buttons, Vec::new(), &mut combinations);
+    combinations
+}
+
+fn add_combinations(
+    pattern: Pattern,
+    buttons: &[Button],
+    buttons_pressed: Buttons,
+    combinations: &mut Combinations,
+) {
     if buttons.is_empty() {
-        return None;
+        let entry = combinations.entry(pattern).or_default();
+        entry.push(buttons_pressed);
+        return;
     }
 
-    let pressed = minimum_button_presses(
-        objective ^ buttons[0].as_bits(),
+    // pressed
+    let mut new_button_pressed = buttons_pressed.clone();
+    new_button_pressed.push(buttons[0].clone());
+
+    add_combinations(
+        pattern ^ buttons[0].as_bits(),
         &buttons[1..],
-        button_pressed + 1,
+        new_button_pressed,
+        combinations,
     );
-    let not_pressed = minimum_button_presses(objective, &buttons[1..], button_pressed);
-
-    match (pressed, not_pressed) {
-        (None, None) => None,
-        (Some(x), Some(y)) => Some(std::cmp::min(x, y)),
-        (Some(x), None) => Some(x),
-        (None, Some(y)) => Some(y),
-    }
+    // not pressed
+    add_combinations(
+        pattern,
+        &buttons[1..],
+        buttons_pressed.clone(),
+        combinations,
+    );
 }
 
 fn parse_input(file_content: &str) -> Vec<Machine> {
@@ -122,6 +206,11 @@ fn parse_input(file_content: &str) -> Vec<Machine> {
         })
         .collect()
 }
+
+type Pattern = usize;
+type Buttons = Vec<Button>;
+type Joltage = Vec<usize>;
+type Combinations = HashMap<Pattern, Vec<Buttons>>;
 
 #[derive(Debug, Clone)]
 struct Machine {
