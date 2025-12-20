@@ -30,6 +30,7 @@ impl<T> Grid<T> {
         }
     }
 
+    #[allow(dead_code)]
     fn index_to_pos(&self, idx: usize) -> Option<Coordinates> {
         if idx >= self.data.len() {
             None

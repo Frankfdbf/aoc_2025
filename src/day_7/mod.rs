@@ -37,7 +37,7 @@ fn solve_part_one(file_content: &str) -> usize {
                     let mut splits = 0;
                     if element == 'S' {
                         new_beams[idx] = true;
-                    } else if element == '^' && beams[idx] == true {
+                    } else if element == '^' && beams[idx] {
                         splits += 1;
                         new_beams[idx - 1] = true;
                         new_beams[idx + 1] = true;
@@ -84,7 +84,7 @@ mod test {
     #[test]
     fn test_solve_part_one() {
         let result = solve_part_one(
-            &".......S.......
+            ".......S.......
 ...............
 .......^.......
 ...............
@@ -99,8 +99,7 @@ mod test {
 ..^...^.....^..
 ...............
 .^.^.^.^.^...^.
-..............."
-                .to_string(),
+...............",
         );
 
         assert_eq!(result, 21);
@@ -109,7 +108,7 @@ mod test {
     #[test]
     fn test_solve_part_two() {
         let result = solve_part_two(
-            &".......S.......
+            ".......S.......
 ...............
 .......^.......
 ...............
@@ -124,8 +123,7 @@ mod test {
 ..^...^.....^..
 ...............
 .^.^.^.^.^...^.
-..............."
-                .to_string(),
+...............",
         );
 
         assert_eq!(result, 40);

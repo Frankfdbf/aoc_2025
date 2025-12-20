@@ -33,7 +33,7 @@ fn solve_part_one(file_content: &str) -> usize {
 
                 // Odd number of chars, not possible that id is made of
                 // pattern repeated twice.
-                if id_as_str.len() % 2 != 0 {
+                if !id_as_str.len().is_multiple_of(2) {
                     continue;
                 }
 
@@ -77,7 +77,7 @@ fn solve_part_two(file_content: &str) -> usize {
 }
 
 fn is_repeating_pattern(id: &str, pattern_length: usize) -> bool {
-    if id.len() % pattern_length != 0 {
+    if !id.len().is_multiple_of(pattern_length) {
         return false;
     }
 
@@ -99,8 +99,7 @@ mod test {
     #[test]
     fn test_solve_part_one() {
         let result = solve_part_one(
-            &"11-22,95-115,998-1012,1188511880-1188511890,222220-222224,1698522-1698528,446443-446449,38593856-38593862,565653-565659,824824821-824824827,2121212118-2121212124"
-            .to_string(),
+            "11-22,95-115,998-1012,1188511880-1188511890,222220-222224,1698522-1698528,446443-446449,38593856-38593862,565653-565659,824824821-824824827,2121212118-2121212124",
         );
 
         assert_eq!(result, 1227775554);
@@ -109,8 +108,7 @@ mod test {
     #[test]
     fn test_solve_part_two() {
         let result = solve_part_two(
-            &"11-22,95-115,998-1012,1188511880-1188511890,222220-222224,1698522-1698528,446443-446449,38593856-38593862,565653-565659,824824821-824824827,2121212118-2121212124"
-            .to_string(),
+            "11-22,95-115,998-1012,1188511880-1188511890,222220-222224,1698522-1698528,446443-446449,38593856-38593862,565653-565659,824824821-824824827,2121212118-2121212124",
         );
 
         assert_eq!(result, 4174379265);

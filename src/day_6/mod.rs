@@ -50,11 +50,7 @@ fn solve_part_one(file_content: &str) -> usize {
 fn solve_part_two(file_content: &str) -> usize {
     let mut lines = file_content.trim().lines().rev();
 
-    let operators: Vec<(usize, &str)> = lines
-        .next()
-        .unwrap()
-        .rmatch_indices(|a| a == '*' || a == '+')
-        .collect();
+    let operators: Vec<(usize, &str)> = lines.next().unwrap().rmatch_indices(['*', '+']).collect();
 
     let len_line = lines.clone().next().unwrap().len();
 
@@ -70,18 +66,17 @@ fn solve_part_two(file_content: &str) -> usize {
 
             last_visited_idx = idx.saturating_sub(1);
 
-            let result = apply_operator_on_operand(&operands, operator);
-            result
+            apply_operator_on_operand(&operands, operator)
         })
         .sum()
 }
 
-fn apply_operator_on_operand(operands: &Vec<&str>, operator: &str) -> usize {
+fn apply_operator_on_operand(operands: &[&str], operator: &str) -> usize {
     let max_length = operands[0].len();
 
     let computations = (0..max_length).map(|idx| {
         let mut num_str = String::with_capacity(max_length);
-        for operand in operands.clone().iter().rev() {
+        for operand in operands.to_owned().iter().rev() {
             num_str.push_str(&operand[idx..idx + 1]);
         }
 
@@ -101,11 +96,10 @@ mod test {
     #[test]
     fn test_solve_part_one() {
         let result = solve_part_one(
-            &"123 328  51 64 
+            "123 328  51 64 
  45 64  387 23 
   6 98  215 314
-*   +   *   +  "
-                .to_string(),
+*   +   *   +  ",
         );
 
         assert_eq!(result, 4277556);
@@ -114,11 +108,10 @@ mod test {
     #[test]
     fn test_solve_part_two() {
         let result = solve_part_two(
-            &"123 328  51 64 
+            "123 328  51 64 
  45 64  387 23 
   6 98  215 314
-*   +   *   +  "
-                .to_string(),
+*   +   *   +  ",
         );
 
         assert_eq!(result, 3263827);

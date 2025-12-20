@@ -59,7 +59,7 @@ fn solve_part_two(file_content: &str) -> usize {
         })
         .collect();
 
-    fresh_ingredients.sort_by(|a, b| a.start().cmp(&b.start()));
+    fresh_ingredients.sort_by(|a, b| a.start().cmp(b.start()));
 
     let mut last_high = 0;
     let mut total = 0;
@@ -85,7 +85,7 @@ mod test {
     #[test]
     fn test_solve_part_one() {
         let result = solve_part_one(
-            &"3-5
+            "3-5
 10-14
 16-20
 12-18
@@ -95,8 +95,7 @@ mod test {
 8
 11
 17
-32"
-            .to_string(),
+32",
         );
 
         assert_eq!(result, 3);
@@ -105,7 +104,7 @@ mod test {
     #[test]
     fn test_solve_part_two() {
         let result = solve_part_two(
-            &"3-5
+            "3-5
 10-14
 16-20
 12-18
@@ -115,8 +114,7 @@ mod test {
 8
 11
 17
-32"
-            .to_string(),
+32",
         );
 
         assert_eq!(result, 14);

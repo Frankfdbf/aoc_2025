@@ -19,11 +19,11 @@ pub fn output_double_star(path: &Path) {
 }
 
 fn solve_part_one(file_content: &str) -> usize {
-    compute_max_voltage(&file_content, 2)
+    compute_max_voltage(file_content, 2)
 }
 
 fn solve_part_two(file_content: &str) -> usize {
-    compute_max_voltage(&file_content, 12)
+    compute_max_voltage(file_content, 12)
 }
 
 fn compute_max_voltage(battery_banks: &str, slots_per_bank: usize) -> usize {
@@ -56,11 +56,10 @@ mod test {
     #[test]
     fn test_solve_part_one() {
         let result = solve_part_one(
-            &"987654321111111
+            "987654321111111
 811111111111119
 234234234234278
-818181911112111"
-                .to_string(),
+818181911112111",
         );
 
         assert_eq!(result, 357);
@@ -69,11 +68,10 @@ mod test {
     #[test]
     fn test_solve_part_two() {
         let result = solve_part_two(
-            &"987654321111111
+            "987654321111111
 811111111111119
 234234234234278
-818181911112111"
-                .to_string(),
+818181911112111",
         );
 
         assert_eq!(result, 3121910778619);

@@ -1,7 +1,7 @@
 use std::collections::HashMap;
+use std::fs;
 use std::path::Path;
 use std::time::Instant;
-use std::{fs, usize};
 
 pub fn output_single_star(path: &Path) {
     let start = Instant::now();
@@ -27,7 +27,7 @@ fn solve_part_one(file_content: &str, iterations: usize) -> usize {
 
     for (i, vertex) in vertices.iter().enumerate() {
         for (y, other_vertex) in vertices[i + 1..].iter().enumerate() {
-            distances[i][i + 1 + y] = vertex.squared_distance_to(&other_vertex);
+            distances[i][i + 1 + y] = vertex.squared_distance_to(other_vertex);
         }
     }
     let mut circuits = vec![None; vertices.len()];
@@ -72,7 +72,7 @@ fn solve_part_one(file_content: &str, iterations: usize) -> usize {
     let mut frequencies: Vec<usize> = circuits
         .iter()
         .copied()
-        .filter_map(|x| x)
+        .flatten()
         .fold(HashMap::new(), |mut map, val| {
             map.entry(val).and_modify(|frq| *frq += 1).or_insert(1);
             map
@@ -114,12 +114,12 @@ fn get_vertices(file_content: &str) -> Vec<JunctionBox> {
         .collect()
 }
 
-fn get_edges(vertices: &Vec<JunctionBox>) -> Vec<(usize, usize, usize)> {
+fn get_edges(vertices: &[JunctionBox]) -> Vec<(usize, usize, usize)> {
     let mut edges = Vec::new();
 
     for (i, vertex) in vertices.iter().enumerate() {
         for (j, other_vertex) in vertices[i + 1..].iter().enumerate() {
-            edges.push((i, i + 1 + j, vertex.squared_distance_to(&other_vertex)));
+            edges.push((i, i + 1 + j, vertex.squared_distance_to(other_vertex)));
         }
     }
     edges.sort_by_key(|&(_, _, distance)| distance);
@@ -137,7 +137,10 @@ struct UnionFind {
 
 impl UnionFind {
     pub fn new(capacity: usize) -> Self {
-        Self { parents: vec![None; capacity], circuit_count: 0 }
+        Self {
+            parents: vec![None; capacity],
+            circuit_count: 0,
+        }
     }
 
     fn root(&self, mut from: usize) -> Option<usize> {
@@ -159,27 +162,26 @@ impl UnionFind {
                 self.parents[from] = Some(from);
                 self.parents[to] = Some(from);
                 self.circuit_count += 1;
-            }, 
-            (Some(_), Some(_)) => {
-
-                match (self.root(from), self.root(to)) {
-                    (Some(x), Some(y)) => {
-                        if x == y { return; }
-                        self.parents[x] = Some(to);
-                        self.circuit_count -= 1;
-
-                    },
-                    _ => { panic!("should never happen"); },
+            }
+            (Some(_), Some(_)) => match (self.root(from), self.root(to)) {
+                (Some(x), Some(y)) => {
+                    if x == y {
+                        return;
+                    }
+                    self.parents[x] = Some(to);
+                    self.circuit_count -= 1;
                 }
-            }, 
+                _ => {
+                    panic!("should never happen");
+                }
+            },
             (Some(_), None) => {
                 self.parents[to] = Some(from);
-            },
+            }
             (None, Some(_)) => {
                 self.parents[from] = Some(to);
-            },
+            }
         }
-
     }
 }
 
@@ -206,7 +208,7 @@ mod test {
     #[test]
     fn test_solve_part_one() {
         let result = solve_part_one(
-            &"162,817,812
+            "162,817,812
 57,618,57
 906,360,560
 592,479,940
@@ -225,8 +227,7 @@ mod test {
 941,993,340
 862,61,35
 984,92,344
-425,690,689"
-                .to_string(),
+425,690,689",
             10,
         );
 
@@ -236,7 +237,7 @@ mod test {
     #[test]
     fn test_solve_part_two() {
         let result = solve_part_two(
-            &"162,817,812
+            "162,817,812
 57,618,57
 906,360,560
 592,479,940
@@ -255,8 +256,7 @@ mod test {
 941,993,340
 862,61,35
 984,92,344
-425,690,689"
-                .to_string(),
+425,690,689",
         );
 
         assert_eq!(result, 25272);

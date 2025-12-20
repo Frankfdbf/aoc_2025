@@ -41,9 +41,7 @@ fn solve_part_two(file_content: &str) -> usize {
             .insert_entry(parts[1].split_whitespace().collect::<Vec<&str>>());
     }
     let mut cache = Cache::new();
-    let result = dfs_2(&edges, "svr", false, false, &mut cache);
-
-    result
+    dfs_2(&edges, "svr", false, false, &mut cache)
 }
 
 fn dfs(edges: &Edges, start: &str) -> usize {

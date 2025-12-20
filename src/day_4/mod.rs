@@ -72,7 +72,7 @@ fn solve_part_two(file_content: &str) -> usize {
             grid[*pos] = '.';
         }
 
-        if removed_rolls_current_loop.len() == 0 {
+        if removed_rolls_current_loop.is_empty() {
             break;
         }
     }
@@ -87,7 +87,7 @@ mod test {
     #[test]
     fn test_solve_part_one() {
         let result = solve_part_one(
-            &"..@@.@@@@.
+            "..@@.@@@@.
 @@@.@.@.@@
 @@@@@.@.@@
 @.@@@@..@.
@@ -96,8 +96,7 @@ mod test {
 .@.@.@.@@@
 @.@@@.@@@@
 .@@@@@@@@.
-@.@.@@@.@."
-                .to_string(),
+@.@.@@@.@.",
         );
 
         assert_eq!(result, 13);
@@ -106,7 +105,7 @@ mod test {
     #[test]
     fn test_solve_part_two() {
         let result = solve_part_two(
-            &"..@@.@@@@.
+            "..@@.@@@@.
 @@@.@.@.@@
 @@@@@.@.@@
 @.@@@@..@.
@@ -115,8 +114,7 @@ mod test {
 .@.@.@.@@@
 @.@@@.@@@@
 .@@@@@@@@.
-@.@.@@@.@."
-                .to_string(),
+@.@.@@@.@.",
         );
 
         assert_eq!(result, 43);
